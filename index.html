@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wheel of Grace</title>
-    <!-- Tambahan Confetti Script -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,11 +56,9 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            /* Shadow dipertahankan tapi tidak mutlak perlu kalau roda segi-7 */
             filter: drop-shadow(0 0 20px rgba(255,255,255,0.15)); 
         }
 
-        /* 2. Animasi Jarum Penunjuk Goyang */
         .pointer {
             position: absolute;
             top: -15px;
@@ -72,7 +69,7 @@
             background-color: white;
             clip-path: polygon(50% 100%, 0 0, 100% 0);
             z-index: 10;
-            transform-origin: 50% 10px; /* Poros goyangan di bagian atas jarum */
+            transform-origin: 50% 10px;
         }
 
         .pointer.tick {
@@ -81,7 +78,7 @@
 
         @keyframes tickAnim {
             0% { transform: translateX(-50%) rotate(0deg); }
-            30% { transform: translateX(-50%) rotate(15deg); } /* Nyentak ke kanan */
+            30% { transform: translateX(-50%) rotate(15deg); }
             100% { transform: translateX(-50%) rotate(0deg); }
         }
 
@@ -165,9 +162,7 @@
     <div class="preload-font">Font Loader</div>
 
     <div class="wheel-container" id="wheelContainer">
-        <!-- Tambah ID agar mudah diakses CSS goyangannya -->
         <div class="pointer" id="pointerEl"></div>
-        <!-- Hilangkan border-radius 50% di canvas css karena sekarang bentuknya segi-7 -->
         <canvas id="wheelCanvas" width="800" height="800" style="border-radius: 0;"></canvas>
     </div>
 
@@ -176,21 +171,21 @@
         <div class="modal-content">
             <h2 class="modal-title" id="modalTitle">Title</h2>
             <div class="modal-body" id="modalBody">Description goes here</div>
-            <!-- 8. Teks tombol jadi Oke! -->
             <button class="close-btn" onclick="closeModal()">Oke!</button>
         </div>
     </div>
 
     <script>
-        // 3 & 4 & 7: Penyesuaian Array Data (Judul roda tanpa poin & HURUF BESAR)
         const prompts = [
             { wheelTitle: "BDG 48", popupTitle: "+1-3 BDG 48", color: "#7964b3", textColor: "#e3e0c8", dotColor: "#000000", text: "Kelompok lawan boleh rekues lagu sekolah minggu untuk dinyanyikan keras-keras dan pakai gerakan oleh seluruh anggota kelompok. Kelompok lawan menilai dan memberikan poin antara 1-3." },
-            { wheelTitle: "AYAT EMAS", popupTitle: "+1 AYAT EMAS", color: "#000000", textColor: "#e3e0c8", dotColor: "#e3e0c8", text: "Diberi waktu persiapan 30 dtk, seluruh anggota kelompok berdiri untuk ayat hafalan apapun bersama-sama." }, // Dot Krem
-            { wheelTitle: "FOTSTUD", popupTitle: "+1-3 FotStud", color: "#e3e0c8", textColor: "#000000", dotColor: "#000000", text: "Diberi 30 detik untuk berpose kelompok sekreatif mungkin. Kelompok lawan menilai dan memberikan poin antara 1-3." },
+            // 2. Titik (dotColor) AYAT EMAS dikembalikan ke Hitam (#000000)
+            { wheelTitle: "AYAT EMAS", popupTitle: "+1 AYAT EMAS", color: "#000000", textColor: "#e3e0c8", dotColor: "#000000", text: "Diberi waktu persiapan 30 dtk, seluruh anggota kelompok berdiri untuk ayat hafalan apapun bersama-sama." },
+            // 3. Popup FOTSTUD warnanya dibuat lebih tua jadi hijau/coklat gelap (#8c8761)
+            { wheelTitle: "FOTSTUD", popupTitle: "+1-3 FotStud", color: "#e3e0c8", popupColor: "#8c8761", textColor: "#000000", dotColor: "#000000", text: "Diberi 30 detik untuk berpose kelompok sekreatif mungkin. Kelompok lawan menilai dan memberikan poin antara 1-3." },
             { wheelTitle: "BESTIES", popupTitle: "+1 Besties", color: "#f6a5c0", textColor: "#000000", dotColor: "#000000", text: "Perwakilan kelompok sebutin nama semua anggota grup lawan. Kalau bisa dengan nama belakang +2." },
             { wheelTitle: "SILSILAH", popupTitle: "+1-4 Silsilah", color: "#227031", textColor: "#e3e0c8", dotColor: "#000000", text: "Menyebutkan dengan benar umur (pada saat itu) semua anggota grup lawan. Benar semua: +4, setiap salah -1, maks salah 3x." },
             { wheelTitle: "APRESIASI", popupTitle: "+1 Apresiasi", color: "#ff6f3c", textColor: "#000000", dotColor: "#000000", text: "Bilang makasih/kasih pujian yang tulus dan melelehkan hati panitia setempat <3. Kalau panitia merasa tersentuh ginjalnya panitia bisa menambahkan 1 poin lagi." },
-            { wheelTitle: "CEMARA", popupTitle: "+2 Cemara", color: "#a5e2c2", popupColor: "#16864a", textColor: "#000000", dotColor: "#000000", text: "Dalam 30 detik bisa baris berdasarkan urutan ulang tahun/nama belakang/dkk (penjaga pos yg pilih)." } // Warna Teks Popup Di-Tuakan (#16864a)
+            { wheelTitle: "CEMARA", popupTitle: "+2 Cemara", color: "#a5e2c2", popupColor: "#16864a", textColor: "#000000", dotColor: "#000000", text: "Dalam 30 detik bisa baris berdasarkan urutan ulang tahun/nama belakang/dkk (penjaga pos yg pilih)." }
         ];
 
         const canvas = document.getElementById("wheelCanvas");
@@ -213,16 +208,15 @@
         let lastAngle = 0;
         let lastTime = 0;
         let dragVelocity = 0;
-        let lastActiveSlice = -1; // untuk mentrigger sentakan jarum
+        let lastActiveSlice = -1;
 
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-        const radius = canvas.width / 2 - 10; // margin kecil agar ujung segi tujuh tidak terpotong area canvas
+        const radius = canvas.width / 2 - 10;
         const centerCircleRadius = radius * 0.18; 
         const numSlices = prompts.length;
         const sliceAngle = (2 * Math.PI) / numSlices;
 
-        // Fungsi memantau Slice mana yang sedang menyentuh jarum (untuk animasi goyang jarum)
         function updatePointerTick() {
             let normalizedAngle = currentAngle % (2 * Math.PI);
             if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
@@ -230,7 +224,6 @@
             
             if (activeSlice !== lastActiveSlice) {
                 if (lastActiveSlice !== -1 && isSpinning) {
-                    // Trigger CSS reflow untuk restart animasi keyframes
                     pointerEl.classList.remove("tick");
                     void pointerEl.offsetWidth; 
                     pointerEl.classList.add("tick");
@@ -247,13 +240,12 @@
                 const startAngle = currentAngle + i * sliceAngle;
                 const endAngle = startAngle + sliceAngle;
 
-                // Koordinat dua titik luar (membentuk tepi lurus Segi-7)
                 const p1x = centerX + Math.cos(startAngle) * radius;
                 const p1y = centerY + Math.sin(startAngle) * radius;
                 const p2x = centerX + Math.cos(endAngle) * radius;
                 const p2y = centerY + Math.sin(endAngle) * radius;
 
-                // 5. Gambar Bidang (Slice) Segi-7 dengan garis LURUS terluar
+                // Segi-7 Slice
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.lineTo(p1x, p1y);
@@ -262,22 +254,20 @@
                 ctx.fillStyle = prompts[i].color;
                 ctx.fill();
 
-                // 6(B). Kalkulasi Posisi Teks & Dot sejalan dengan sisi lurus
-                // Mencari titik di 28% dan 72% pada garis lurus / sisi tepi luar
+                // 4. Dot size dikecilkan 30% dari 20 menjadi 14
                 const getDotPos = (frac) => {
                     const cx = p1x + (p2x - p1x) * frac;
                     const cy = p1y + (p2y - p1y) * frac;
                     const dist = Math.sqrt((cx - centerX)**2 + (cy - centerY)**2);
-                    // Ditarik 45px ke arah tengah
                     const ratio = (dist - 45) / dist; 
                     return { x: centerX + (cx - centerX) * ratio, y: centerY + (cy - centerY) * ratio };
                 };
                 
                 const dot1 = getDotPos(0.28);
                 const dot2 = getDotPos(0.72);
-                const dotSize = 20;
+                const dotSize = 14; // Lebih kecil
 
-                ctx.fillStyle = prompts[i].dotColor; // 4. Warna dot dinamis
+                ctx.fillStyle = prompts[i].dotColor; 
                 ctx.beginPath();
                 ctx.arc(dot1.x, dot1.y, dotSize, 0, 2*Math.PI);
                 ctx.fill();
@@ -294,7 +284,6 @@
                 ctx.textBaseline = "middle";
                 ctx.fillStyle = prompts[i].textColor; 
                 
-                // 3. Font Dibesarkan, Teks ditarik lebih dalam agar tidak nabrak tepian
                 ctx.font = "900 " + (radius * 0.09) + "px 'Bricolage Grotesque'"; 
                 const textRadiusLimit = radius * Math.cos(Math.PI / numSlices) - 75;
                 ctx.fillText(prompts[i].wheelTitle, textRadiusLimit, 0); 
@@ -307,30 +296,33 @@
             ctx.fillStyle = "#000000";
             ctx.fill();
             
-            // 1. Gambar Logo Rumah Warna Krem
+            // Gambar Logo Rumah Warna Krem
             const hSize = radius * 0.065;
-            const hY = centerY + hSize * 0.15; // Shift logo kebawah dikit biar di tengah
+            const hY = centerY + hSize * 0.15;
             ctx.beginPath();
-            ctx.moveTo(centerX, hY - hSize*0.9);           // Puncak atap
-            ctx.lineTo(centerX + hSize*0.9, hY);           // Ujung atap kanan
-            ctx.lineTo(centerX + hSize*0.7, hY);           // Dinding kanan (atas)
-            ctx.lineTo(centerX + hSize*0.7, hY + hSize*0.8); // Dinding kanan (bawah)
-            ctx.lineTo(centerX - hSize*0.7, hY + hSize*0.8); // Dinding kiri (bawah)
-            ctx.lineTo(centerX - hSize*0.7, hY);           // Dinding kiri (atas)
-            ctx.lineTo(centerX - hSize*0.9, hY);           // Ujung atap kiri
+            ctx.moveTo(centerX, hY - hSize*0.9);           
+            ctx.lineTo(centerX + hSize*0.9, hY);           
+            ctx.lineTo(centerX + hSize*0.7, hY);           
+            ctx.lineTo(centerX + hSize*0.7, hY + hSize*0.8); 
+            ctx.lineTo(centerX - hSize*0.7, hY + hSize*0.8); 
+            ctx.lineTo(centerX - hSize*0.7, hY);           
+            ctx.lineTo(centerX - hSize*0.9, hY);           
             ctx.closePath();
-            ctx.fillStyle = "#e3e0c8"; // Krem
+            ctx.fillStyle = "#e3e0c8"; 
             ctx.fill();
         }
 
         // ==========================================
-        // 6. ANIMASI SLOW IN (SANGAT) SLOW OUT (Diturunkan Maks Speed)
+        // 1. ANIMASI GAUSSIAN VELOCITY + LONG TAIL
         // ==========================================
         
         function customDramaticEase(t) {
-            if (t < 0.2) return 5 * t * t * t; // Top speed dikurangi dengan mengubah pengali awal
-            let nt = (t - 0.2) / 0.8;
-            return 0.04 + 0.96 * (1 - Math.pow(1 - nt, 5)); 
+            // Menggunakan distribusi Weibull (berbentuk seperti kurva lonceng Gaussian)
+            // Kecepatan di awal akan naik perlahan -> Puncak mulus -> Menurun sangat lama di akhir
+            const k = 7; 
+            const val = 1 - Math.exp(-k * t * t);
+            const maxVal = 1 - Math.exp(-k);
+            return val / maxVal;
         }
 
         function triggerSpin() {
@@ -339,8 +331,9 @@
             isButtonSpin = true; 
             
             spinStartAngle = currentAngle;
-            // 6. Jumlah putaran tengah di-nerf (diturunkan jadi sekitar 4-5 putaran saja agar tidak terlalu kencang)
-            const randomRotations = (Math.floor(Math.random() * 2) + 4) * Math.PI * 2;
+            
+            // Speed maks diturunkan dengan mengurangi jumlah total putaran menjadi 3 - 4 saja
+            const randomRotations = (Math.floor(Math.random() * 2) + 3) * Math.PI * 2;
             const randomExtra = Math.random() * Math.PI * 2;
             
             spinTargetAngle = currentAngle + randomRotations + randomExtra;
@@ -480,17 +473,12 @@
             }
         });
 
-        // ==========================================
-        // 9. LOGIC PEMENANG, CONFETTI & MODAL POP-UP
-        // ==========================================
-
         function determineWinner() {
             let normalizedAngle = currentAngle % (2 * Math.PI);
             if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
             
             let winningIndex = Math.floor(( ( (3 * Math.PI / 2) - normalizedAngle + (2 * Math.PI) ) % (2 * Math.PI) ) / sliceAngle);
             
-            // Tembakkan Confetti
             confetti({
                 particleCount: 120,
                 spread: 70,
@@ -498,7 +486,6 @@
                 colors: ['#7964b3', '#f6a5c0', '#227031', '#ff6f3c', '#a5e2c2', '#e3e0c8']
             });
 
-            // Tunda dikit Pop-up agar Confetti kelihatan natural
             setTimeout(() => {
                 showModal(prompts[winningIndex]);
             }, 600);
@@ -506,7 +493,6 @@
 
         function showModal(promptData) {
             document.getElementById('modalTitle').innerText = promptData.popupTitle;
-            // 7. Pakai popupColor (jika ada) untuk men-gelapkan warna, jika tidak pakai warna biasa
             document.getElementById('modalTitle').style.color = promptData.popupColor || promptData.color;
             document.getElementById('modalBody').innerText = promptData.text;
             document.getElementById('modal').classList.add('active');
@@ -516,7 +502,6 @@
             document.getElementById('modal').classList.remove('active');
         }
 
-        // Fallback memuat Font di browser/Mobile
         let fontRenderTicks = 0;
         let fontInterval = setInterval(() => {
             drawWheel();

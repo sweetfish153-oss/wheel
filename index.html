@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wheel of Graciousness</title>
+    <title>Wheel of Grace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- 1. Mengganti semua font ke Bricolage Grotesque -->
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #000000;
@@ -16,7 +17,7 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Bricolage Grotesque', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -25,28 +26,15 @@
             justify-content: center;
             min-height: 100vh;
             overflow-x: hidden;
-            /* Prevent pull-to-refresh on mobile */
             overscroll-behavior-y: none; 
-        }
-
-        h1 {
-            font-family: 'Bungee Shade', cursive;
-            font-size: 2.2rem;
-            text-align: center;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            color: #fff;
-            padding: 0 15px;
-            line-height: 1.1;
         }
 
         .wheel-container {
             position: relative;
             width: 90vw;
-            max-width: 450px; /* Ukuran pas untuk portrait HP */
+            max-width: 450px; 
             aspect-ratio: 1/1;
-            margin: 10px 0;
-            /* Cegah scroll layar saat mengusap roda */
+            margin: 20px 0;
             touch-action: none; 
             cursor: grab;
         }
@@ -59,8 +47,7 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            /* Bayangan sedikit agar menonjol */
-            box-shadow: 0 0 20px rgba(255,255,255,0.1); 
+            box-shadow: 0 0 20px rgba(255,255,255,0.15); 
         }
 
         /* Jarum penunjuk warna putih di atas */
@@ -77,7 +64,7 @@
         }
 
         .controls {
-            margin-top: 30px;
+            margin-top: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -92,12 +79,13 @@
         }
 
         button.spin-btn {
-            font-family: 'Bungee Shade', cursive;
+            font-family: 'Bricolage Grotesque', sans-serif;
             background-color: #fff;
             color: #000;
             border: none;
             padding: 15px 50px;
             font-size: 1.5rem;
+            font-weight: 900;
             border-radius: 50px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
@@ -159,22 +147,24 @@
         }
 
         .modal-title {
-            font-family: 'Bungee Shade', cursive;
-            font-size: 1.6rem;
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
             margin-top: 0;
             margin-bottom: 15px;
             line-height: 1.2;
         }
 
         .modal-body {
-            font-size: 1.05rem;
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-size: 1.1rem;
             line-height: 1.5;
             margin-bottom: 25px;
             font-weight: 700;
         }
 
         button.close-btn {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Bricolage Grotesque', sans-serif;
             font-weight: 900;
             background-color: #000;
             color: #fff;
@@ -196,11 +186,9 @@
 </head>
 <body>
 
-    <h1>Wheel of<br>Graciousness</h1>
-
+    <!-- 6. Judul di atas dihapus, akan diganti jadi tulisan GRACE di tengah roda -->
     <div class="wheel-container" id="wheelContainer">
         <div class="pointer"></div>
-        <!-- Resolusi internal canvas dibuat besar (800x800) agar tidak pecah di layar HP modern -->
         <canvas id="wheelCanvas" width="800" height="800"></canvas>
     </div>
 
@@ -219,14 +207,16 @@
     </div>
 
     <script>
+        // 7. Prompt text disesuaikan case-nya
+        // 5. & 2. Penyesuaian Hex Color mirip dengan referensi
         const prompts = [
-            { title: "BESTIES +1", color: "#f497bc", text: "Perwakilan kelompok sebutin nama semua anggota grup lawan. Kalau bisa dengan nama belakang +2." },
-            { title: "SILSILAH +1-4", color: "#6baf76", text: "Menyebutkan dengan benar umur (pada saat itu) semua anggota grup lawan. Benar semua: +4, setiap salah -1, maks salah 3x." },
-            { title: "K. CEMARA +2", color: "#ffc107", text: "Dalam 30 detik bisa baris berdasarkan urutan ulang tahun/nama belakang/dkk (penjaga pos yg pilih)." },
-            { title: "BDG 48 +1-3", color: "#7c63b1", text: "Kelompok lawan boleh rekues lagu sekolah minggu untuk dinyanyikan keras-keras dan pakai gerakan oleh seluruh anggota kelompok. Kelompok lawan menilai dan memberikan poin antara 1-3." },
-            { title: "FOTSTUD +1-3", color: "#e3e0c8", text: "Diberi 30 detik untuk berpose kelompok sekreatif mungkin. Kelompok lawan menilai dan memberikan poin antara 1-3." },
-            { title: "APRESIASI +1", color: "#ff7b42", text: "Bilang makasih/kasih pujian yang tulus dan melelehkan hati panitia setempat <3. Kalau panitia merasa tersentuh ginjalnya panitia bisa menambahkan 1 poin lagi." },
-            { title: "AYAT EMAS +1", color: "#4fc3a1", text: "Diberi waktu persiapan 30 dtk, seluruh anggota kelompok berdiri untuk ayat hafalan apapun bersama-sama." }
+            { title: "+1-3 BDG 48", color: "#7964b3", textColor: "#000000", text: "Kelompok lawan boleh rekues lagu sekolah minggu untuk dinyanyikan keras-keras dan pakai gerakan oleh seluruh anggota kelompok. Kelompok lawan menilai dan memberikan poin antara 1-3." },
+            { title: "+1 AYAT EMAS", color: "#000000", textColor: "#e3e0c8", text: "Diberi waktu persiapan 30 dtk, seluruh anggota kelompok berdiri untuk ayat hafalan apapun bersama-sama." }, // 2. Hitam dengan teks krem
+            { title: "+1-3 FotStud", color: "#e3e0c8", textColor: "#000000", text: "Diberi 30 detik untuk berpose kelompok sekreatif mungkin. Kelompok lawan menilai dan memberikan poin antara 1-3." },
+            { title: "+1 Besties", color: "#f6a5c0", textColor: "#000000", text: "Perwakilan kelompok sebutin nama semua anggota grup lawan. Kalau bisa dengan nama belakang +2." },
+            { title: "+1-4 Silsilah", color: "#389e47", textColor: "#000000", text: "Menyebutkan dengan benar umur (pada saat itu) semua anggota grup lawan. Benar semua: +4, setiap salah -1, maks salah 3x." }, // 5. Ijo agak kuning (Grass Green)
+            { title: "+1 Apresiasi", color: "#ff6f3c", textColor: "#000000", text: "Bilang makasih/kasih pujian yang tulus dan melelehkan hati panitia setempat <3. Kalau panitia merasa tersentuh ginjalnya panitia bisa menambahkan 1 poin lagi." },
+            { title: "+2 Cemara", color: "#85d1a5", textColor: "#000000", text: "Dalam 30 detik bisa baris berdasarkan urutan ulang tahun/nama belakang/dkk (penjaga pos yg pilih)." } // 5. Ijo Cyan (Mint)
         ];
 
         const canvas = document.getElementById("wheelCanvas");
@@ -234,21 +224,28 @@
         const spinBtn = document.getElementById("spinBtn");
         const wheelContainer = document.getElementById("wheelContainer");
         
-        let currentAngle = -Math.PI / 2 + ((2 * Math.PI / prompts.length) / 2); // Mulai pada posisi rapi
+        let currentAngle = -Math.PI / 2 + ((2 * Math.PI / prompts.length) / 2);
         let isSpinning = false;
-        let spinVelocity = 0;
         
+        // Setup variabel khusus untuk animasi baru (ease-in-out)
+        let isButtonSpin = false;
+        let spinStartAngle = 0;
+        let spinTargetAngle = 0;
+        let spinStartTime = 0;
+        const SPIN_DURATION = 5500; // Durasi putaran tombol (5.5 detik)
+
+        // Variabel untuk fitur swipe (gesekan fisik)
+        let spinVelocity = 0;
+        let isDragging = false;
+        let lastAngle = 0;
+        let lastTime = 0;
+        let dragVelocity = 0;
+
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         const radius = canvas.width / 2;
         const numSlices = prompts.length;
         const sliceAngle = (2 * Math.PI) / numSlices;
-
-        // Variables untuk fitur swipe / touchscreen
-        let isDragging = false;
-        let lastAngle = 0;
-        let lastTime = 0;
-        let dragVelocity = 0;
 
         function drawWheel() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -257,26 +254,34 @@
                 const startAngle = currentAngle + i * sliceAngle;
                 const endAngle = startAngle + sliceAngle;
 
-                // Gambar Potongan (Slice)
+                // Gambar Slice
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.arc(centerX, centerY, radius, startAngle, endAngle);
                 ctx.closePath();
                 ctx.fillStyle = prompts[i].color;
                 ctx.fill();
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = "#000";
-                ctx.stroke();
+                // 3. Jangan ada outline (ctx.stroke() dihilangkan)
 
-                // Gambar Titik Hitam di Pinggir
-                const dotRadius = radius - 35;
+                // 4. Dot membesar 80% (radius semula ~12, diubah jadi 22) dan ada 2 berurutan sejajar 
+                const dotSize = 22;
+                const dotRadius1 = radius - 40;  // Titik terluar
+                const dotRadius2 = radius - 95;  // Titik lebih ke dalam
                 const dotAngle = startAngle + sliceAngle / 2;
-                const dotX = centerX + Math.cos(dotAngle) * dotRadius;
-                const dotY = centerY + Math.sin(dotAngle) * dotRadius;
                 
+                const dot1X = centerX + Math.cos(dotAngle) * dotRadius1;
+                const dot1Y = centerY + Math.sin(dotAngle) * dotRadius1;
+                const dot2X = centerX + Math.cos(dotAngle) * dotRadius2;
+                const dot2Y = centerY + Math.sin(dotAngle) * dotRadius2;
+                
+                // Gambar 2 titik di tiap potongannya
                 ctx.beginPath();
-                ctx.arc(dotX, dotY, 12, 0, 2 * Math.PI);
+                ctx.arc(dot1X, dot1Y, dotSize, 0, 2 * Math.PI);
                 ctx.fillStyle = "#000";
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(dot2X, dot2Y, dotSize, 0, 2 * Math.PI);
                 ctx.fill();
 
                 // Gambar Teks
@@ -285,40 +290,95 @@
                 ctx.rotate(dotAngle);
                 ctx.textAlign = "right";
                 ctx.textBaseline = "middle";
-                ctx.fillStyle = "#000";
+                ctx.fillStyle = prompts[i].textColor; // Teks menyesuaikan property agar Ayat Emas bisa krem
                 
-                // Ukuran font dinamis menyesuaikan resolusi canvas
-                ctx.font = "900 " + (radius * 0.08) + "px 'Nunito'"; 
+                ctx.font = "900 " + (radius * 0.075) + "px 'Bricolage Grotesque'"; 
                 
-                ctx.fillText(prompts[i].title, radius - 75, 0);
+                // Mundurin text agar tidak nabrak dua dot baru
+                ctx.fillText(prompts[i].title, radius - 145, 0);
                 ctx.restore();
             }
 
-            // Gambar Lingkaran Tengah
+            // Lingkaran Tengah Hitam (sedikit dibesarkan untuk memuat kata GRACE)
             ctx.beginPath();
-            ctx.arc(centerX, centerY, radius * 0.15, 0, 2 * Math.PI);
-            ctx.fillStyle = "#000";
+            ctx.arc(centerX, centerY, radius * 0.23, 0, 2 * Math.PI);
+            ctx.fillStyle = "#000000";
             ctx.fill();
             
-            // Tambahkan text "mezzodetto" atau "Gracious" di tengah
+            // 6. Teks tengah "GRACE"
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillStyle = "#fff";
-            ctx.font = "700 " + (radius * 0.035) + "px 'Nunito'";
-            ctx.fillText("GRACIOUS", centerX, centerY);
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "900 " + (radius * 0.08) + "px 'Bricolage Grotesque'";
+            ctx.fillText("GRACE", centerX, centerY);
         }
 
-        function animateSpin() {
-            currentAngle += spinVelocity;
+        // ==========================================
+        // 8. ANIMASI SLOW IN SLOW OUT UNTUK BUTTON SPIN
+        // ==========================================
+        
+        // Easing Quintic InOut: start lambat sekali -> tengah super kencang -> stop pelan dan halus
+        function easeInOutQuint(t) {
+            return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
+        }
+
+        function triggerSpin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            isButtonSpin = true; 
+            spinBtn.disabled = true;
             
-            // Gesekan (Friction): Mengurangi kecepatan perlahan
+            spinStartAngle = currentAngle;
+            // Target putaran: 5 hingga 8 putaran penuh (sangat cepat di tengah) ditambah sudut random
+            const randomRotations = (Math.floor(Math.random() * 4) + 5) * Math.PI * 2;
+            const randomExtra = Math.random() * Math.PI * 2;
+            
+            spinTargetAngle = currentAngle + randomRotations + randomExtra;
+            spinStartTime = performance.now();
+            
+            requestAnimationFrame(animateEaseSpin);
+        }
+
+        function animateEaseSpin(time) {
+            if (!isSpinning || !isButtonSpin) return;
+
+            let elapsed = time - spinStartTime;
+            
+            // Menghentikan loop jika waktu habis
+            if (elapsed >= SPIN_DURATION) {
+                currentAngle = spinTargetAngle;
+                drawWheel();
+                isSpinning = false;
+                spinBtn.disabled = false;
+                determineWinner();
+                return;
+            }
+
+            // Hitung fase progres waktu t (dari 0 ke 1)
+            let t = elapsed / SPIN_DURATION;
+            let easedT = easeInOutQuint(t); 
+            
+            // Terapkan perlambatan ke angle putaran
+            currentAngle = spinStartAngle + (spinTargetAngle - spinStartAngle) * easedT;
+            drawWheel();
+
+            requestAnimationFrame(animateEaseSpin);
+        }
+
+        // ==========================================
+        // ANIMASI GESEK (FRICTION) JIKA DISWIPE
+        // ==========================================
+
+        function animateFrictionSpin() {
+            if (!isSpinning || isButtonSpin) return;
+
+            currentAngle += spinVelocity;
             spinVelocity *= 0.985; 
 
             drawWheel();
 
-            // Lanjut putar selama velocity masih di atas threshold (baik minus maupun plus)
             if (Math.abs(spinVelocity) > 0.002) {
-                requestAnimationFrame(animateSpin);
+                requestAnimationFrame(animateFrictionSpin);
             } else {
                 isSpinning = false;
                 spinBtn.disabled = false;
@@ -326,45 +386,12 @@
             }
         }
 
-        // Fungsi dipanggil oleh tombol SPIN
-        function triggerSpin() {
-            if (isSpinning) return;
-            isSpinning = true;
-            spinBtn.disabled = true;
-            // Kecepatan putar random
-            spinVelocity = Math.random() * 0.15 + 0.25; 
-            requestAnimationFrame(animateSpin);
-        }
-
-        function determineWinner() {
-            // Normalisasi angle (tangani nilai minus jika diputar kebalikan)
-            let normalizedAngle = currentAngle % (2 * Math.PI);
-            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
-            
-            // Penunjuk ada di atas (270 derajat atau 3*PI/2)
-            let winningIndex = Math.floor(( ( (3 * Math.PI / 2) - normalizedAngle + (2 * Math.PI) ) % (2 * Math.PI) ) / sliceAngle);
-            
-            showModal(prompts[winningIndex]);
-        }
-
-        function showModal(promptData) {
-            document.getElementById('modalTitle').innerText = promptData.title;
-            document.getElementById('modalTitle').style.color = promptData.color;
-            document.getElementById('modalBody').innerText = promptData.text;
-            document.getElementById('modal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
-
         // ==========================================
         // FITUR TOUCHSCREEN / SWIPE LOGIC
         // ==========================================
-        
+
         function getEventAngle(e) {
             const rect = canvas.getBoundingClientRect();
-            // Dukungan untuk sentuhan (touch) dan mouse
             const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
             
@@ -375,7 +402,6 @@
 
         function startDrag(e) {
             if (isSpinning) return;
-            // Hanya cegah default jika ini bukan sekadar klik (opsional, tapi baik untuk touch)
             if(e.cancelable) e.preventDefault(); 
             isDragging = true;
             lastAngle = getEventAngle(e);
@@ -391,7 +417,6 @@
             const currentMoveAngle = getEventAngle(e);
             let deltaAngle = currentMoveAngle - lastAngle;
             
-            // Perbaiki loncatan sudut saat melewati sumbu X negatif (-PI ke PI)
             if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
             if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
 
@@ -401,9 +426,7 @@
             const currentTime = performance.now();
             const deltaTime = currentTime - lastTime;
             
-            // Hitung kecepatan ayunan (velocity)
             if (deltaTime > 0) {
-                // Konversi ke skala frame (ms per frame) agar cocok dengan animateSpin
                 dragVelocity = (deltaAngle / deltaTime) * 16; 
             }
 
@@ -415,32 +438,55 @@
             if (!isDragging) return;
             isDragging = false;
             
-            // Batasi batas maksimum kecepatan putar (jangan sampai wheel-nya "hilang")
             dragVelocity = Math.max(-0.6, Math.min(0.6, dragVelocity));
 
-            // Jika ayunan cukup kencang, teruskan sebagai putaran (spin)
+            // Kalau ditarik cepat, jalankan animasi gesekan (gesekan fisik biasa agar natural)
             if (Math.abs(dragVelocity) > 0.05) {
                 isSpinning = true;
+                isButtonSpin = false;
                 spinVelocity = dragVelocity;
-                requestAnimationFrame(animateSpin);
+                requestAnimationFrame(animateFrictionSpin);
             } else {
-                // Jika cuma digeser dikit dan dilepas, pastikan tombol bisa diklik lagi
                 spinBtn.disabled = false;
             }
         }
 
-        // Daftarkan Event Listener
+        // Event Listener Swipe/Drag
         wheelContainer.addEventListener('mousedown', startDrag);
         wheelContainer.addEventListener('touchstart', startDrag, { passive: false });
-        
         window.addEventListener('mousemove', drag);
         window.addEventListener('touchmove', drag, { passive: false });
-        
         window.addEventListener('mouseup', endDrag);
         window.addEventListener('touchend', endDrag);
 
-        // Render awal
-        drawWheel();
+        // ==========================================
+        // LOGIC KEMENANGAN & POPUP
+        // ==========================================
+
+        function determineWinner() {
+            let normalizedAngle = currentAngle % (2 * Math.PI);
+            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+            
+            let winningIndex = Math.floor(( ( (3 * Math.PI / 2) - normalizedAngle + (2 * Math.PI) ) % (2 * Math.PI) ) / sliceAngle);
+            showModal(prompts[winningIndex]);
+        }
+
+        function showModal(promptData) {
+            document.getElementById('modalTitle').innerText = promptData.title;
+            // Jika warnanya hitam (#000000), tetap dipasang karena background modal warna putih jadi terbaca
+            document.getElementById('modalTitle').style.color = promptData.color;
+            document.getElementById('modalBody').innerText = promptData.text;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Render awal setelah font dimuat
+        document.fonts.ready.then(() => {
+            drawWheel();
+        });
 
     </script>
 </body>

@@ -6,7 +6,7 @@
     <title>Wheel of Grace</title>
     <!-- Library Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- 3. Library Google WebFont Loader untuk MEMAKSA font dirender sempurna sebelum Canvas digambar -->
+    <!-- Library Google WebFont Loader untuk MEMAKSA font dirender sempurna sebelum Canvas digambar -->
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -171,7 +171,7 @@
         const prompts = [
             { wheelTitle: "BDG 48", popupTitle: "+1-3 BDG 48", color: "#7964b3", textColor: "#e3e0c8", dotColor: "#000000", text: "Kelompok lawan boleh rekues lagu sekolah minggu untuk dinyanyikan keras-keras dan pakai gerakan oleh seluruh anggota kelompok. Kelompok lawan menilai dan memberikan poin antara 1-3." },
             { wheelTitle: "AYAT EMAS", popupTitle: "+1 AYAT EMAS", color: "#000000", textColor: "#e3e0c8", dotColor: "#000000", text: "Diberi waktu persiapan 30 dtk, seluruh anggota kelompok berdiri untuk ayat hafalan apapun bersama-sama." },
-            { wheelTitle: "FOTSTUD", popupTitle: "+1-3 FotStud", color: "#e3e0c8", popupColor: "#8c8761", textColor: "#000000", dotColor: "#000000", text: "Diberi 30 detik untuk berpose kelompok sekreatif mungkin. Kelompok lawan menilai dan memberikan poin antara 1-3." }, // Hijau khaki gelap
+            { wheelTitle: "FOTSTUD", popupTitle: "+1-3 FotStud", color: "#e3e0c8", popupColor: "#8c8761", textColor: "#000000", dotColor: "#000000", text: "Diberi 30 detik untuk berpose kelompok sekreatif mungkin. Kelompok lawan menilai dan memberikan poin antara 1-3." },
             { wheelTitle: "BESTIES", popupTitle: "+1 Besties", color: "#f6a5c0", textColor: "#000000", dotColor: "#000000", text: "Perwakilan kelompok sebutin nama semua anggota grup lawan. Kalau bisa dengan nama belakang +2." },
             { wheelTitle: "SILSILAH", popupTitle: "+1-4 Silsilah", color: "#227031", textColor: "#e3e0c8", dotColor: "#000000", text: "Menyebutkan dengan benar umur (pada saat itu) semua anggota grup lawan. Benar semua: +4, setiap salah -1, maks salah 3x." },
             { wheelTitle: "APRESIASI", popupTitle: "+1 Apresiasi", color: "#ff6f3c", textColor: "#000000", dotColor: "#000000", text: "Bilang makasih/kasih pujian yang tulus dan melelehkan hati panitia setempat <3. Kalau panitia merasa tersentuh ginjalnya panitia bisa menambahkan 1 poin lagi." },
@@ -255,7 +255,7 @@
                 
                 const dot1 = getDotPos(0.28);
                 const dot2 = getDotPos(0.72);
-                const dotSize = 14; // Sudah diperkecil 30%
+                const dotSize = 14; 
 
                 ctx.fillStyle = prompts[i].dotColor; 
                 ctx.beginPath();
@@ -303,23 +303,19 @@
         }
 
         // ==========================================
-        // 1 & 2. ANIMASI GAUSSIAN + EFEK BOUNCE (Ngerem Maju-Mundur)
+        // ANIMASI GAUSSIAN + EFEK BOUNCE (SANGAT SUBTLE)
         // ==========================================
         
         function customDramaticEase(t) {
-            // Kurva berbentuk lonceng: Mulai halus, ngebut di tengah, melambat sangaaat lama.
             const k = 7; 
             const val = 1 - Math.exp(-k * t * t);
             const maxVal = 1 - Math.exp(-k);
             let baseEase = val / maxVal;
 
-            // Efek rem maju-mundur halus di 15% durasi terakhir (detik 8.5 ke 10.0)
+            // Efek rem maju-mundur dikurangi ke tingkat mikroskopis (0.002 dari awalnya 0.015)
             if (t > 0.85) {
-                let bt = (t - 0.85) / 0.15; // bt bernilai 0 hingga 1
-                
-                // Rumus matematika untuk pantulan: sin(gelombang) * kurva peredam halus
-                // Hasilnya: Sedikit overshoot (maju) -> undershoot (mundur) -> pas di tengah.
-                let bounce = Math.sin(bt * Math.PI * 3) * bt * (1 - bt) * 0.015;
+                let bt = (t - 0.85) / 0.15; 
+                let bounce = Math.sin(bt * Math.PI * 3) * bt * (1 - bt) * 0.002;
                 baseEase += bounce;
             }
 
@@ -333,9 +329,8 @@
             
             spinStartAngle = currentAngle;
             
-            // 2. Max Speed ditambah (amplitudo). Jumlah putaran ditambah jadi 6-8 kali
-            // Dalam durasi 10 detik yg sama, putaran lebih banyak = max speed di tengah lebih ngebut.
-            const randomRotations = (Math.floor(Math.random() * 3) + 6) * Math.PI * 2;
+            // Kecepatan putaran dikembalikan percis seperti versi sebelumnya (3-4 putaran di tengah)
+            const randomRotations = (Math.floor(Math.random() * 2) + 3) * Math.PI * 2;
             const randomExtra = Math.random() * Math.PI * 2;
             
             spinTargetAngle = currentAngle + randomRotations + randomExtra;
@@ -504,15 +499,12 @@
             document.getElementById('modal').classList.remove('active');
         }
 
-        // ==========================================
-        // 3. FONT LOADER ABSOLUT (Mengatasi Bug HP)
-        // ==========================================
+        // FONT LOADER ABSOLUT (Mengatasi Bug HP render awal)
         WebFont.load({
             google: {
                 families: ['Bricolage Grotesque:400,700,900']
             },
             fontactive: function(familyName, fvd) {
-                // Saat Google memastikan font selesai diload, Canvas baru digambar!
                 drawWheel();
             }
         });

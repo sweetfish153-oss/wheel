@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Graciousness</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Importing Bungee Shade for titles and Nunito for body -->
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-family: 'Bungee Shade', cursive;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #fff;
+            padding: 0 20px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 90vw;
+            max-width: 500px;
+            aspect-ratio: 1/1;
+            margin: 20px 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        /* The white pointer at the top */
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background-color: white;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 10;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        button.spin-btn {
+            font-family: 'Bungee Shade', cursive;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        button.spin-btn:hover {
+            transform: scale(1.05);
+            background-color: #f0f0f0;
+        }
+
+        button.spin-btn:disabled {
+            background-color: #555;
+            color: #222;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Popup / Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #fff;
+            color: #000;
+            padding: 40px 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 85%;
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-family: 'Bungee Shade', cursive;
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .modal-body {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        button.close-btn {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button.close-btn:hover {
+            background-color: #333;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Wheel of Graciousness</h1>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="600" height="600"></canvas>
+    </div>
+
+    <div class="controls">
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+    </div>
+
+    <!-- Popup Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle">Title</h2>
+            <div class="modal-body" id="modalBody">Description goes here</div>
+            <button class="close-btn" onclick="closeModal()">Got it!</button>
+        </div>
+    </div>
+
+    <script>
+        const prompts = [
+            { title: "BESTIES +1", color: "#f497bc", text: "Perwakilan kelompok sebutin nama semua anggota grup lawan. Kalau bisa dengan nama belakang +2." },
+            { title: "SILSILAH +1-4", color: "#6baf76", text: "Menyebutkan dengan benar umur (pada saat itu) semua anggota grup lawan. Benar semua: +4, setiap salah -1, maks salah 3x." },
+            { title: "K. CEMARA +2", color: "#ffc107", text: "Dalam 30 detik bisa baris berdasarkan urutan ulang tahun/nama belakang/dkk (penjaga pos yg pilih)." },
+            { title: "BDG 48 +1-3", color: "#7c63b1", text: "Kelompok lawan boleh rekues lagu sekolah minggu untuk dinyanyikan keras-keras dan pakai gerakan oleh seluruh anggota kelompok. Kelompok lawan menilai dan memberikan poin antara 1-3." },
+            { title: "FOTSTUD +1-3", color: "#e3e0c8", text: "Diberi 30 detik untuk berpose kelompok sekreatif mungkin. Kelompok lawan menilai dan memberikan poin antara 1-3." },
+            { title: "APRESIASI +1", color: "#ff7b42", text: "Bilang makasih/kasih pujian yang tulus dan melelehkan hati panitia setempat <3. Kalau panitia merasa tersentuh ginjalnya panitia bisa menambahkan 1 poin lagi." },
+            { title: "AYAT EMAS +1", color: "#4fc3a1", text: "Diberi waktu persiapan 30 dtk, seluruh anggota kelompok berdiri untuk ayat hafalan apapun bersama-sama." }
+        ];
+
+        const canvas = document.getElementById("wheelCanvas");
+        const ctx = canvas.getContext("2d");
+        const spinBtn = document.getElementById("spinBtn");
+        
+        let currentAngle = 0;
+        let isSpinning = false;
+        let spinVelocity = 0;
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = canvas.width / 2;
+        const numSlices = prompts.length;
+        const sliceAngle = (2 * Math.PI) / numSlices;
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < numSlices; i++) {
+                const startAngle = currentAngle + i * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+
+                // Draw Slice
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = prompts[i].color;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#000";
+                ctx.stroke();
+
+                // Draw Outer Dot
+                const dotRadius = radius - 25;
+                const dotAngle = startAngle + sliceAngle / 2;
+                const dotX = centerX + Math.cos(dotAngle) * dotRadius;
+                const dotY = centerY + Math.sin(dotAngle) * dotRadius;
+                
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = "#000";
+                ctx.fill();
+
+                // Draw Text
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(dotAngle);
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#000";
+                ctx.font = "900 24px 'Nunito'"; // Using Nunito Black for slices to ensure readability when rotated
+                
+                // Adjust text position slightly inward from the dot
+                ctx.fillText(prompts[i].title, radius - 55, 0);
+                ctx.restore();
+            }
+
+            // Draw Center Circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 0.15, 0, 2 * Math.PI);
+            ctx.fillStyle = "#000";
+            ctx.fill();
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            
+            // Random spin speed + minimum rotations
+            spinVelocity = Math.random() * 0.2 + 0.4; 
+            
+            requestAnimationFrame(animateSpin);
+        }
+
+        function animateSpin() {
+            currentAngle += spinVelocity;
+            spinVelocity *= 0.985; // Friction
+
+            drawWheel();
+
+            if (spinVelocity > 0.002) {
+                requestAnimationFrame(animateSpin);
+            } else {
+                isSpinning = false;
+                spinBtn.disabled = false;
+                determineWinner();
+            }
+        }
+
+        function determineWinner() {
+            // Adjust to find what is at the top (270 degrees / -Math.PI/2)
+            const normalizedAngle = currentAngle % (2 * Math.PI);
+            
+            // The top of the canvas is at -PI/2. We calculate which slice is currently under the pointer.
+            let winningIndex = Math.floor(( ( (3 * Math.PI / 2) - normalizedAngle + (2 * Math.PI) ) % (2 * Math.PI) ) / sliceAngle);
+            
+            showModal(prompts[winningIndex]);
+        }
+
+        function showModal(promptData) {
+            document.getElementById('modalTitle').innerText = promptData.title;
+            document.getElementById('modalTitle').style.color = promptData.color; // Title matches wheel color
+            document.getElementById('modalBody').innerText = promptData.text;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Initial Draw
+        // Offset starting angle so it looks nice on load
+        currentAngle = -Math.PI / 2 + (sliceAngle / 2); 
+        drawWheel();
+    </script>
+</body>
+</html>

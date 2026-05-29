@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wheel of Graciousness</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Importing Bungee Shade for titles and Nunito for body -->
     <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -26,46 +25,70 @@
             justify-content: center;
             min-height: 100vh;
             overflow-x: hidden;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: none; 
         }
 
         h1 {
             font-family: 'Bungee Shade', cursive;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             text-align: center;
-            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
             color: #fff;
-            padding: 0 20px;
+            padding: 0 15px;
+            line-height: 1.1;
         }
 
         .wheel-container {
             position: relative;
             width: 90vw;
-            max-width: 500px;
+            max-width: 450px; /* Ukuran pas untuk portrait HP */
             aspect-ratio: 1/1;
-            margin: 20px 0;
+            margin: 10px 0;
+            /* Cegah scroll layar saat mengusap roda */
+            touch-action: none; 
+            cursor: grab;
+        }
+
+        .wheel-container:active {
+            cursor: grabbing;
         }
 
         canvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
+            /* Bayangan sedikit agar menonjol */
+            box-shadow: 0 0 20px rgba(255,255,255,0.1); 
         }
 
-        /* The white pointer at the top */
+        /* Jarum penunjuk warna putih di atas */
         .pointer {
             position: absolute;
-            top: -20px;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 40px;
-            height: 60px;
+            width: 35px;
+            height: 50px;
             background-color: white;
             clip-path: polygon(50% 100%, 0 0, 100% 0);
             z-index: 10;
         }
 
         .controls {
-            margin-top: 20px;
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 5px;
+            font-weight: 700;
         }
 
         button.spin-btn {
@@ -73,16 +96,21 @@
             background-color: #fff;
             color: #000;
             border: none;
-            padding: 15px 40px;
+            padding: 15px 50px;
             font-size: 1.5rem;
             border-radius: 50px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
+            touch-action: manipulation;
         }
 
         button.spin-btn:hover {
             transform: scale(1.05);
             background-color: #f0f0f0;
+        }
+
+        button.spin-btn:active {
+            transform: scale(0.95);
         }
 
         button.spin-btn:disabled {
@@ -92,7 +120,7 @@
             transform: none;
         }
 
-        /* Popup / Modal Styling */
+        /* Modal / Pop-up */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -104,6 +132,8 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
             z-index: 100;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .modal-overlay.active {
@@ -114,10 +144,10 @@
         .modal-content {
             background: #fff;
             color: #000;
-            padding: 40px 30px;
+            padding: 30px 20px;
             border-radius: 20px;
             max-width: 400px;
-            width: 85%;
+            width: 100%;
             text-align: center;
             transform: translateY(20px);
             transition: transform 0.3s ease;
@@ -130,16 +160,16 @@
 
         .modal-title {
             font-family: 'Bungee Shade', cursive;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             margin-top: 0;
             margin-bottom: 15px;
             line-height: 1.2;
         }
 
         .modal-body {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             line-height: 1.5;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             font-weight: 700;
         }
 
@@ -149,11 +179,13 @@
             background-color: #000;
             color: #fff;
             border: none;
-            padding: 12px 30px;
+            padding: 12px 35px;
             font-size: 1.1rem;
             border-radius: 30px;
             cursor: pointer;
             transition: background-color 0.2s;
+            width: 100%;
+            max-width: 200px;
         }
 
         button.close-btn:hover {
@@ -164,15 +196,17 @@
 </head>
 <body>
 
-    <h1>Wheel of Graciousness</h1>
+    <h1>Wheel of<br>Graciousness</h1>
 
-    <div class="wheel-container">
+    <div class="wheel-container" id="wheelContainer">
         <div class="pointer"></div>
-        <canvas id="wheelCanvas" width="600" height="600"></canvas>
+        <!-- Resolusi internal canvas dibuat besar (800x800) agar tidak pecah di layar HP modern -->
+        <canvas id="wheelCanvas" width="800" height="800"></canvas>
     </div>
 
     <div class="controls">
-        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+        <div class="hint">Tap button or swipe the wheel!</div>
+        <button class="spin-btn" id="spinBtn" onclick="triggerSpin()">SPIN</button>
     </div>
 
     <!-- Popup Modal -->
@@ -198,8 +232,9 @@
         const canvas = document.getElementById("wheelCanvas");
         const ctx = canvas.getContext("2d");
         const spinBtn = document.getElementById("spinBtn");
+        const wheelContainer = document.getElementById("wheelContainer");
         
-        let currentAngle = 0;
+        let currentAngle = -Math.PI / 2 + ((2 * Math.PI / prompts.length) / 2); // Mulai pada posisi rapi
         let isSpinning = false;
         let spinVelocity = 0;
         
@@ -209,6 +244,12 @@
         const numSlices = prompts.length;
         const sliceAngle = (2 * Math.PI) / numSlices;
 
+        // Variables untuk fitur swipe / touchscreen
+        let isDragging = false;
+        let lastAngle = 0;
+        let lastTime = 0;
+        let dragVelocity = 0;
+
         function drawWheel() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
@@ -216,67 +257,67 @@
                 const startAngle = currentAngle + i * sliceAngle;
                 const endAngle = startAngle + sliceAngle;
 
-                // Draw Slice
+                // Gambar Potongan (Slice)
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.arc(centerX, centerY, radius, startAngle, endAngle);
                 ctx.closePath();
                 ctx.fillStyle = prompts[i].color;
                 ctx.fill();
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 3;
                 ctx.strokeStyle = "#000";
                 ctx.stroke();
 
-                // Draw Outer Dot
-                const dotRadius = radius - 25;
+                // Gambar Titik Hitam di Pinggir
+                const dotRadius = radius - 35;
                 const dotAngle = startAngle + sliceAngle / 2;
                 const dotX = centerX + Math.cos(dotAngle) * dotRadius;
                 const dotY = centerY + Math.sin(dotAngle) * dotRadius;
                 
                 ctx.beginPath();
-                ctx.arc(dotX, dotY, 8, 0, 2 * Math.PI);
+                ctx.arc(dotX, dotY, 12, 0, 2 * Math.PI);
                 ctx.fillStyle = "#000";
                 ctx.fill();
 
-                // Draw Text
+                // Gambar Teks
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(dotAngle);
                 ctx.textAlign = "right";
                 ctx.textBaseline = "middle";
                 ctx.fillStyle = "#000";
-                ctx.font = "900 24px 'Nunito'"; // Using Nunito Black for slices to ensure readability when rotated
                 
-                // Adjust text position slightly inward from the dot
-                ctx.fillText(prompts[i].title, radius - 55, 0);
+                // Ukuran font dinamis menyesuaikan resolusi canvas
+                ctx.font = "900 " + (radius * 0.08) + "px 'Nunito'"; 
+                
+                ctx.fillText(prompts[i].title, radius - 75, 0);
                 ctx.restore();
             }
 
-            // Draw Center Circle
+            // Gambar Lingkaran Tengah
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius * 0.15, 0, 2 * Math.PI);
             ctx.fillStyle = "#000";
             ctx.fill();
-        }
-
-        function spinWheel() {
-            if (isSpinning) return;
-            isSpinning = true;
-            spinBtn.disabled = true;
             
-            // Random spin speed + minimum rotations
-            spinVelocity = Math.random() * 0.2 + 0.4; 
-            
-            requestAnimationFrame(animateSpin);
+            // Tambahkan text "mezzodetto" atau "Gracious" di tengah
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#fff";
+            ctx.font = "700 " + (radius * 0.035) + "px 'Nunito'";
+            ctx.fillText("GRACIOUS", centerX, centerY);
         }
 
         function animateSpin() {
             currentAngle += spinVelocity;
-            spinVelocity *= 0.985; // Friction
+            
+            // Gesekan (Friction): Mengurangi kecepatan perlahan
+            spinVelocity *= 0.985; 
 
             drawWheel();
 
-            if (spinVelocity > 0.002) {
+            // Lanjut putar selama velocity masih di atas threshold (baik minus maupun plus)
+            if (Math.abs(spinVelocity) > 0.002) {
                 requestAnimationFrame(animateSpin);
             } else {
                 isSpinning = false;
@@ -285,11 +326,22 @@
             }
         }
 
+        // Fungsi dipanggil oleh tombol SPIN
+        function triggerSpin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            // Kecepatan putar random
+            spinVelocity = Math.random() * 0.15 + 0.25; 
+            requestAnimationFrame(animateSpin);
+        }
+
         function determineWinner() {
-            // Adjust to find what is at the top (270 degrees / -Math.PI/2)
-            const normalizedAngle = currentAngle % (2 * Math.PI);
+            // Normalisasi angle (tangani nilai minus jika diputar kebalikan)
+            let normalizedAngle = currentAngle % (2 * Math.PI);
+            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
             
-            // The top of the canvas is at -PI/2. We calculate which slice is currently under the pointer.
+            // Penunjuk ada di atas (270 derajat atau 3*PI/2)
             let winningIndex = Math.floor(( ( (3 * Math.PI / 2) - normalizedAngle + (2 * Math.PI) ) % (2 * Math.PI) ) / sliceAngle);
             
             showModal(prompts[winningIndex]);
@@ -297,7 +349,7 @@
 
         function showModal(promptData) {
             document.getElementById('modalTitle').innerText = promptData.title;
-            document.getElementById('modalTitle').style.color = promptData.color; // Title matches wheel color
+            document.getElementById('modalTitle').style.color = promptData.color;
             document.getElementById('modalBody').innerText = promptData.text;
             document.getElementById('modal').classList.add('active');
         }
@@ -306,10 +358,90 @@
             document.getElementById('modal').classList.remove('active');
         }
 
-        // Initial Draw
-        // Offset starting angle so it looks nice on load
-        currentAngle = -Math.PI / 2 + (sliceAngle / 2); 
+        // ==========================================
+        // FITUR TOUCHSCREEN / SWIPE LOGIC
+        // ==========================================
+        
+        function getEventAngle(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Dukungan untuk sentuhan (touch) dan mouse
+            const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+            
+            const x = clientX - rect.left - rect.width / 2;
+            const y = clientY - rect.top - rect.height / 2;
+            return Math.atan2(y, x);
+        }
+
+        function startDrag(e) {
+            if (isSpinning) return;
+            // Hanya cegah default jika ini bukan sekadar klik (opsional, tapi baik untuk touch)
+            if(e.cancelable) e.preventDefault(); 
+            isDragging = true;
+            lastAngle = getEventAngle(e);
+            lastTime = performance.now();
+            dragVelocity = 0;
+            spinBtn.disabled = true;
+        }
+
+        function drag(e) {
+            if (!isDragging || isSpinning) return;
+            if(e.cancelable) e.preventDefault();
+            
+            const currentMoveAngle = getEventAngle(e);
+            let deltaAngle = currentMoveAngle - lastAngle;
+            
+            // Perbaiki loncatan sudut saat melewati sumbu X negatif (-PI ke PI)
+            if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
+            if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
+
+            currentAngle += deltaAngle;
+            drawWheel();
+
+            const currentTime = performance.now();
+            const deltaTime = currentTime - lastTime;
+            
+            // Hitung kecepatan ayunan (velocity)
+            if (deltaTime > 0) {
+                // Konversi ke skala frame (ms per frame) agar cocok dengan animateSpin
+                dragVelocity = (deltaAngle / deltaTime) * 16; 
+            }
+
+            lastAngle = currentMoveAngle;
+            lastTime = currentTime;
+        }
+
+        function endDrag(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            // Batasi batas maksimum kecepatan putar (jangan sampai wheel-nya "hilang")
+            dragVelocity = Math.max(-0.6, Math.min(0.6, dragVelocity));
+
+            // Jika ayunan cukup kencang, teruskan sebagai putaran (spin)
+            if (Math.abs(dragVelocity) > 0.05) {
+                isSpinning = true;
+                spinVelocity = dragVelocity;
+                requestAnimationFrame(animateSpin);
+            } else {
+                // Jika cuma digeser dikit dan dilepas, pastikan tombol bisa diklik lagi
+                spinBtn.disabled = false;
+            }
+        }
+
+        // Daftarkan Event Listener
+        wheelContainer.addEventListener('mousedown', startDrag);
+        wheelContainer.addEventListener('touchstart', startDrag, { passive: false });
+        
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('touchmove', drag, { passive: false });
+        
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
+
+        // Render awal
         drawWheel();
+
     </script>
 </body>
 </html>
